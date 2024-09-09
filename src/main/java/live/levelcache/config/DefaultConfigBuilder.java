@@ -3,7 +3,7 @@ package live.levelcache.config;
 /**
  * Provides a default configuration for a cache instance using a builder pattern.
  */
-public class DefaultConfigurationBuilder {
+public class DefaultConfigBuilder {
 	
 	/**
      * Returns a default cache configuration.
