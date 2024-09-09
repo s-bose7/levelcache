@@ -14,7 +14,7 @@ The system's design emphasizes flexibility, efficiency, and scalability. A key a
 
 At the core of the system is the `CacheFactory`, responsible for creating and initializing `LevelCache` instances based on the specified configurations. The `LevelCache` class offers a well-defined API, supporting operations such as adding and removing cache levels, storing and retrieving data, displaying cache states, and performing bulk reads/writes.
 
-Each cache level is efficiently managed through `CacheUnit`, which holds the level's details and supports multiple eviction policies, making it highly extensible. The `CacheUnitProvider` supplies pre-configured `CacheUnit` instances with the appropriate eviction policy, which dictates how the cache handles storage and key-value invalidation.
+Each cache level is efficiently managed through `CacheUnit`, which holds the level's details and supports multiple eviction policies, making it highly extensible. The `CacheUnitProvider` supplies pre-configured `CacheUnit` instances with the appropriate eviction policy  using `StorageEngine`, which dictates how the cache handles storage and key-value invalidation.
 
 Overall, the system is built for extensibility, supporting dynamic cache levels and eviction policies, and promotes loose coupling through the use of the `DefaultConfigBuilder`.
 
@@ -34,7 +34,36 @@ $ mvn test
 ```
 
 # Example
+
+## Cache Initialization
 ```java
+package live.levelcache;
+
+import live.levelcache.config.CacheConfiguration;
+import live.levelcache.config.ConfigurationBuilder;
+import live.levelcache.core.LevelCache;
+import live.levelcache.exception.CacheInitializationException;
+import live.levelcache.factory.CacheFactory;
+
+public class App {
+	
+    public static void main( String[] args ) {
+        
+    	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
+                    .setCacheName("cpu-cache-5c-x86-64-5679")
+                    .setLoggingEnabled(false)
+                    .setConcurrencyLevel(5)
+                    .setMaxCacheLevels(100)
+                    .build();
+    	
+    	try {
+    		LevelCache cache = CacheFactory.createCache(cacheConfiguration);
+    		cache.addLevel(5, "LRU");
+    	} catch (CacheInitializationException e) {
+			e.printStackTrace();
+		} 
+    }
+}
 ```
 
 # Benchmarks
