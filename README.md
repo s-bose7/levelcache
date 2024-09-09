@@ -18,6 +18,8 @@ Each cache level is efficiently managed through `CacheUnit`, which holds the lev
 
 Overall, the system is built for extensibility, supporting dynamic cache levels and eviction policies, and promotes loose coupling through the use of the `DefaultConfigBuilder`.
 
+![architecture](doc/levelcache.png)
+
 # Prerequisite
 * JDK 1.8
 * Maven
@@ -49,7 +51,7 @@ public class App {
     	// INITIALIZE THE CACHE USING CACHE FACTORY
     	LevelCache cache = CacheFactory.createCache(cacheConfiguration);
 		cache.addLevel(3, "LRU");
-		cache.addLevel(2, "LRU");
+		cache.addLevel(2, "LFU");
     }
 }
 ```
