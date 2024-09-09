@@ -37,33 +37,24 @@ $ mvn test
 
 ## Cache Initialization
 ```java
-package live.levelcache;
-
-import live.levelcache.config.CacheConfiguration;
-import live.levelcache.config.ConfigurationBuilder;
-import live.levelcache.core.LevelCache;
-import live.levelcache.exception.CacheInitializationException;
-import live.levelcache.factory.CacheFactory;
-
 public class App {
-	
-    public static void main( String[] args ) {
-        
+    public static void main( String[] args ) throws CacheInitializationException {
+        // CREATE THE CACHE CONFIGURATION
     	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
-                    .setCacheName("cpu-cache-5c-x86-64-5679")
-                    .setLoggingEnabled(false)
-                    .setConcurrencyLevel(5)
-                    .setMaxCacheLevels(100)
-                    .build();
-    	
-    	try {
-    		LevelCache cache = CacheFactory.createCache(cacheConfiguration);
-    		cache.addLevel(5, "LRU");
-    	} catch (CacheInitializationException e) {
-		e.printStackTrace();
-	} 
+                        .setCacheName("cpu-cache-5c-x86-64-5679")
+                        .setLoggingEnabled(false)
+                        .setConcurrencyLevel(5)
+                        .setMaxCacheLevels(100)
+                        .build();
+    	// INITIALIZE THE CACHE USING CACHE FACTORY
+    	LevelCache cache = CacheFactory.createCache(cacheConfiguration);
+		cache.addLevel(3, "LRU");
+		cache.addLevel(2, "LRU");
     }
 }
 ```
 
 # Benchmarks
+
+# Appendix
+If you found this design intriguing, feel free to explore my other similar caching system designs [here](https://github.com/s-bose7/memcache) and [here](https://github.com/s-bose7/memcache-client).
