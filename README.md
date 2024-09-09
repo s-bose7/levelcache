@@ -50,8 +50,8 @@ public class App {
                         .build();
     	// INITIALIZE THE CACHE USING CACHE FACTORY
     	LevelCache cache = CacheFactory.createCache(cacheConfiguration);
-		cache.addLevel(3, "LRU");
-		cache.addLevel(2, "LFU");
+	cache.addLevel(3, "LRU");
+	cache.addLevel(2, "LFU");
     }
 }
 ```
