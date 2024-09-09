@@ -60,8 +60,8 @@ public class App {
     		LevelCache cache = CacheFactory.createCache(cacheConfiguration);
     		cache.addLevel(5, "LRU");
     	} catch (CacheInitializationException e) {
-			e.printStackTrace();
-		} 
+		e.printStackTrace();
+	} 
     }
 }
 ```
