@@ -35,7 +35,7 @@ $ mvn clean install
 $ mvn test
 ```
 
-# Example and Usage
+# Usage and Example
 
 Imagine a system where data is stored in Postgres/dynamoDB, but certain data becomes highly popular during peak traffic periods. In such cases, it's beneficial to introduce Redis or ElastiCache between your web application and the database, and to use one or multiple instances of LevelCache within your application to minimize unnecessary network calls.
 
