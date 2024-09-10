@@ -34,7 +34,7 @@ public class InMemoryLRUStorage implements StorageEngine {
     }
 
 	@Override
-	public void createPair(String key, String value) {
+	public synchronized void createPair(String key, String value) {
 		if (cacheMap.containsKey(key)) {
             // Update the value for existing key
 			Node node = cacheMap.get(key);
@@ -96,7 +96,7 @@ public class InMemoryLRUStorage implements StorageEngine {
     }
 
 	@Override
-	public String findByKey(String key) {
+	public synchronized String findByKey(String key) {
 		if (!cacheMap.containsKey(key)) {
             return null;
         }
@@ -105,12 +105,12 @@ public class InMemoryLRUStorage implements StorageEngine {
 	}
 
 	@Override
-	public Map.Entry<String, String> getEvictedKeyIfAny() {
+	public synchronized Map.Entry<String, String> getEvictedKeyIfAny() {
 		return evictedPair;
 	}
 
 	@Override
-	public Map<String, String> getSnapShort() {
+	public synchronized Map<String, String> getSnapShort() {
 	    // Use the existing map size to avoid resizing during put operations
 	    Map<String, String> snapshortMap = new HashMap<>(cacheMap.size());
 	    

@@ -16,9 +16,11 @@
 package com.levelcache.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.levelcache.config.CacheConfiguration;
 import com.levelcache.service.CacheUnit;
@@ -37,150 +39,174 @@ import com.levelcache.exception.RemoveLevelException;
  * 
  */
 public class LevelCacheImpl implements LevelCache {
-	
+
 	private int indexLevel;
 	private CacheConfiguration config;
+	private final ReadWriteLock rwLock;
 	// For faster writing
 	private Map<Integer, CacheUnit> byIndexLevel;
 	// For faster reading
 	private Map<String, Integer> byKey;
-	
-	
+
 	public LevelCacheImpl(CacheConfiguration config) throws CacheInitializationException {
-		if(config.getCacheName().isBlank()) {
+		if (config.getCacheName().isBlank()) {
 			throw new CacheInitializationException("Cache Name cannot be blank");
 		}
 		this.indexLevel = 0;
 		this.config = config;
-		this.byIndexLevel = new HashMap<>();
-		this.byKey = new HashMap<>();
+		this.byIndexLevel = new ConcurrentHashMap<>();
+		this.byKey = new ConcurrentHashMap<>();
+		this.rwLock = new ReentrantReadWriteLock();
 	}
 
-	
 	@Override
 	public void addLevel(int size, String policy) throws LevelOutOfBoundException {
-		if(indexLevel > config.getMaxCacheLevels()) {
-			throw new LevelOutOfBoundException("Level "+indexLevel+" out of bound");
+		rwLock.writeLock().lock();
+		try {
+			if (indexLevel > config.getMaxCacheLevels()) {
+				throw new LevelOutOfBoundException("Level " + indexLevel + " out of bound");
+			}
+			++indexLevel;
+			CacheUnit cacheUnit = CacheUnitProvider.createCacheUnit(indexLevel, size, policy);
+			byIndexLevel.put(indexLevel, cacheUnit);
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		++indexLevel;
-		CacheUnit cacheUnit = CacheUnitProvider.createCacheUnit(indexLevel, size, policy);
-		byIndexLevel.put(indexLevel, cacheUnit);
 	}
 
-	
 	@Override
 	public void removeLevel(int id) throws RemoveLevelException {
-		if (!byIndexLevel.containsKey(id)) {
-	        throw new RemoveLevelException("Cache Level with ID: " + id + " is not found");
-	    }
-		--indexLevel;
-		byIndexLevel.remove(id);
+		rwLock.writeLock().lock();
+		try {
+			if (!byIndexLevel.containsKey(id)) {
+				throw new RemoveLevelException("Cache Level with ID: " + id + " is not found");
+			}
+			--indexLevel;
+			byIndexLevel.remove(id);
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
 
-	
 	@Override
 	public String get(String key) throws CacheReadingException {
-		if(indexLevel < 1) {
-			throw new CacheReadingException("No levels found: "+indexLevel);
+		rwLock.readLock().lock();
+		try {
+			if (indexLevel < 1) {
+				throw new CacheReadingException("No levels found: " + indexLevel);
+			}
+			if (!byKey.containsKey(key)) {
+				return null; // Cache Miss
+			}
+			return byIndexLevel.get(byKey.get(key)).getStorageEngine().findByKey(key);
+
+		} finally {
+			rwLock.readLock().unlock();
 		}
-		if(!byKey.containsKey(key)) {
-			// Cache Miss
-			return null;
-		}
-		int currentLevel = byKey.get(key);
-		String value = byIndexLevel.get(currentLevel).getStorageEngine().findByKey(key);
-		
-		// Data movement across levels when found in lower level?
-		return value;
 	}
 
-	
 	@Override
 	public void put(String key, String value) throws CacheWritingException {
-		if(indexLevel < 1) {
-			throw new CacheWritingException("No levels found: "+indexLevel);
+		rwLock.writeLock().lock();
+		try {
+			if (indexLevel < 1) {
+				throw new CacheWritingException("No levels found: " + indexLevel);
+			}
+
+			// Insert data into L1 (cache level 1)
+			CacheUnit targetCacheUnit = byIndexLevel.get(1);
+			targetCacheUnit.getStorageEngine().createPair(key, value);
+
+			// Check if L1 has evicted any item
+			Map.Entry<String, String> evictedKey = targetCacheUnit.getStorageEngine().getEvictedKeyIfAny();
+			// Cascade the evicted key down to the lower levels, starting from L2
+			int currentLevel = 2;
+			while (evictedKey != null && currentLevel <= indexLevel) {
+				CacheUnit lowerCacheUnit = byIndexLevel.get(currentLevel);
+				lowerCacheUnit.getStorageEngine().createPair(evictedKey.getKey(), evictedKey.getValue());
+				// Update the new level of the evictedKey from L1 (or lower)
+				byKey.put(evictedKey.getKey(), currentLevel);
+				// Check if L2 (or lower) evicts another key
+				evictedKey = lowerCacheUnit.getStorageEngine().getEvictedKeyIfAny();
+				currentLevel++;
+			}
+
+			// If the evicted key reaches beyond the last cache level
+			if (evictedKey != null) {
+				// Cache Miss: The key is no longer in the cache system
+				byKey.remove(evictedKey.getKey());
+			}
+
+			// Update the key map to indicate the inserted key is in L1
+			byKey.put(key, 1);
+
+		} finally {
+			rwLock.writeLock().unlock();
 		}
-		
-		// Insert data into L1 (cache level 1)
-		CacheUnit targetCacheUnit = byIndexLevel.get(1);
-		targetCacheUnit.getStorageEngine().createPair(key, value);
-		
-		// Check if L1 has evicted any item
-		Map.Entry<String, String>  evictedKey = targetCacheUnit.getStorageEngine().getEvictedKeyIfAny();
-		// Cascade the evicted key down to the lower levels, starting from L2
-		int currentLevel = 2;
-		while(evictedKey != null && currentLevel <= indexLevel) {
-			CacheUnit lowerCacheUnit = byIndexLevel.get(currentLevel);
-	        lowerCacheUnit.getStorageEngine().createPair(evictedKey.getKey(), evictedKey.getValue());
-	        // Update the new level of the evictedKey from L1 (or lower)
-	        byKey.put(evictedKey.getKey(), currentLevel); 
-	        // Check if L2 (or lower) evicts another key
-	        evictedKey = lowerCacheUnit.getStorageEngine().getEvictedKeyIfAny();
-	        currentLevel++;
-		}
-		
-		// If the evicted key reaches beyond the last cache level
-	    if (evictedKey != null) {
-	    	// Cache Miss: The key is no longer in the cache system
-	        byKey.remove(evictedKey.getKey());
-	    }
-		
-		// Update the key map to indicate the inserted key is in L1
-		byKey.put(key, 1);
 	}
 
-	
 	@Override
 	public void display() {
-		for(Map.Entry<Integer, CacheUnit> entry : byIndexLevel.entrySet()) {
-			StorageEngine engine = entry.getValue().getStorageEngine();
-			System.out.println("L"+entry.getKey()+": "+engine.getSnapShort().toString());
+		rwLock.readLock().lock();
+		try {
+			for (Map.Entry<Integer, CacheUnit> entry : byIndexLevel.entrySet()) {
+				StorageEngine engine = entry.getValue().getStorageEngine();
+				System.out.println("L" + entry.getKey() + ": " + engine.getSnapShort().toString());
+			}
+		} finally {
+			rwLock.readLock().unlock();
 		}
 	}
 
-	
 	@Override
 	public List<String> getAll(List<String> keys) throws CacheBulkReadingException {
-		if (indexLevel < 1) {
-			throw new CacheBulkReadingException("No levels found: " + indexLevel);
-		}
-		List<String> values = new ArrayList<>(keys.size());
-		for (String key : keys) {
-			try {
-				values.add(get(key));
-			} catch (CacheReadingException e) {
-				// TODO: handle exception
+		rwLock.readLock().lock();
+		try {
+			if (indexLevel < 1) {
+				throw new CacheBulkReadingException("No levels found: " + indexLevel);
 			}
-		}
-		return values;
-	}
+			// Implemetation here
 
+			return null;
+
+		} finally {
+			rwLock.readLock().unlock();
+		}
+	}
 
 	@Override
 	public void putAll(Map<String, String> data) throws CacheBulkWritingException {
-		if(indexLevel < 1) {
-			throw new CacheBulkWritingException("No levels found: "+indexLevel);
-		}
-		for(Map.Entry<String, String> entry : data.entrySet()) {
-			try {
-				put(entry.getKey(), entry.getValue());
-			} catch (CacheWritingException e) {
-				// TODO: handle exception
+		rwLock.writeLock().lock();
+		try {
+			if (indexLevel < 1) {
+				throw new CacheBulkWritingException("No levels found: " + indexLevel);
 			}
+			// Implemetation here
+
+		} finally {
+			rwLock.writeLock().unlock();
 		}
 	}
-
 
 	@Override
 	public void clear() {
-		indexLevel = 0;
-		byIndexLevel.clear();
-		byKey.clear();
+		rwLock.writeLock().lock();
+		try {
+			indexLevel = 0;
+			byIndexLevel.clear();
+			byKey.clear();
+		} finally {
+			rwLock.writeLock().unlock();
+		}
 	}
-
 
 	@Override
 	public int getLevelCount() {
-		return indexLevel;
+		rwLock.readLock().lock();
+		try {
+			return indexLevel;
+		} finally {
+			rwLock.readLock().unlock();
+		}
 	}
 }
