@@ -68,6 +68,17 @@ public class ConfigurationBuilder {
         config.maxCacheLevels = maxCacheLevels;
         return this;
     }
+    
+    public ConfigurationBuilder setKeyType(Class<?> keyType) {
+        this.config.keyType = keyType;
+        return this;
+    }
+
+    public ConfigurationBuilder setValueType(Class<?> valueType) {
+        this.config.valueType = valueType;
+        return this;
+    }
+
 
     /**
      * Builds and returns the fully constructed {@link CacheConfiguration} instance.

@@ -47,19 +47,24 @@ public class App {
     public static void main( String[] args ) throws CacheInitializationException {
         // CREATE THE CACHE CONFIGURATION
     	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
-                        .setCacheName("cpu-cache-5c-x86-64-5679")
-                        .setLoggingEnabled(false)
-                        .setConcurrencyLevel(5)
-                        .setMaxCacheLevels(100)
-                        .build();
+            .setCacheName("levelcache-v1-ins-x86_64-5679-evict-dynamic")
+            .setLoggingEnabled(true)
+            .setConcurrencyLevel(5)
+            .setMaxCacheLevels(100)
+            .setKeyType(String.class)
+            .setValueType(String.class)
+            .build();
+        
     	// INITIALIZE THE CACHE USING CACHE FACTORY
     	LevelCache cache = CacheFactory.createCache(cacheConfiguration);
 	cache.addLevel(3, "LRU");
 	cache.addLevel(2, "LFU");
+
+    // ONE CAN USE THE DEFAULT CONFIGURATION BUILDER AS WELL TO INITIALIZE LEVELCACHE
+    LevelCache cache2 = CacheFactory.createCache(DefaultConfigBuilder.getDefaultConfiguration());
     }
 }
 ```
-
 # Benchmarks
 
 # Appendix

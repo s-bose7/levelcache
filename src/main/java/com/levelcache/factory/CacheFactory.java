@@ -1,7 +1,6 @@
 package com.levelcache.factory;
 
 import com.levelcache.config.CacheConfiguration;
-import com.levelcache.config.DefaultConfigBuilder;
 import com.levelcache.core.LevelCache;
 import com.levelcache.core.LevelCacheImpl;
 import com.levelcache.exception.CacheInitializationException;
@@ -19,11 +18,7 @@ public class CacheFactory {
      * @throws CacheInitializationException if an error occurs during cache initialization
      */
     public static LevelCache createCache(CacheConfiguration config) throws CacheInitializationException {
-        if (config == null) {
-            config = DefaultConfigBuilder.getDefaultConfiguration();
-        }
-        LevelCache cache = new LevelCacheImpl(config);
-        return cache;
+        return new LevelCacheImpl(config);
     }
 
     /**

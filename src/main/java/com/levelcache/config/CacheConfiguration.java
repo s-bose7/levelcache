@@ -33,7 +33,10 @@ public class CacheConfiguration {
      * Controls the depth of the cache hierarchy.
      */
     protected int maxCacheLevels;
-
+    
+    protected Class<?> keyType;
+    protected Class<?> valueType;
+    
     /**
      * Package-private constructor to enforce the use of the builder pattern for creating
      * instances of {@code CacheConfiguration}.
@@ -80,5 +83,24 @@ public class CacheConfiguration {
     public boolean isLoggingEnabled() {
         return loggingEnabled;
     }
+    
+    /**
+     * Gets the key type.
+     *
+     * @return the key type class
+     */
+    public Class<?> getKeyType() {
+        return keyType;
+    }
+
+    /**
+     * Gets the value type.
+     *
+     * @return the value type class
+     */
+    public Class<?> getValueType() {
+        return valueType;
+    }
+
 
 }
