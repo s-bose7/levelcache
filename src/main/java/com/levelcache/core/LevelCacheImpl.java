@@ -67,6 +67,7 @@ public class LevelCacheImpl implements LevelCache {
 		if (!byIndexLevel.containsKey(id)) {
 	        throw new RemoveLevelException("Cache Level with ID: " + id + " is not found");
 	    }
+		--indexLevel;
 		byIndexLevel.remove(id);
 	}
 
@@ -146,5 +147,19 @@ public class LevelCacheImpl implements LevelCache {
 		if(indexLevel < 1) {
 			throw new CacheBulkWritingException("No levels found: "+indexLevel);
 		}
+	}
+
+
+	@Override
+	public void clear() {
+		indexLevel = 0;
+		byIndexLevel.clear();
+		byKey.clear();
+	}
+
+
+	@Override
+	public int getLevelCount() {
+		return indexLevel;
 	}
 }

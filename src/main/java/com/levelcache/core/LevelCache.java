@@ -82,4 +82,8 @@ public interface LevelCache {
      */
 	public void display();
 	
+	public void clear();
+	
+	public int getLevelCount();
+	
 }
