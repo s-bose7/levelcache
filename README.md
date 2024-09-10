@@ -60,8 +60,8 @@ public class App {
 	cache.addLevel(3, "LRU");
 	cache.addLevel(2, "LFU");
 
-    // ONE CAN USE THE DEFAULT CONFIGURATION BUILDER AS WELL TO INITIALIZE LEVELCACHE
-    LevelCache cache2 = CacheFactory.createCache(DefaultConfigBuilder.getDefaultConfiguration());
+    	// ONE CAN USE THE DEFAULT CONFIGURATION BUILDER AS WELL TO INITIALIZE LEVELCACHE
+    	LevelCache cache2 = CacheFactory.createCache(DefaultConfigBuilder.getDefaultConfiguration());
     }
 }
 ```
