@@ -68,6 +68,7 @@ public class App {
 }
 ```
 # Benchmarks
+The `com/levelcache/benchamrk/Benchmark.java` file contains some benchmarks about the cache performance.
 
 # Appendix
 If you found this design intriguing, feel free to explore my other similar caching system designs [here](https://github.com/s-bose7/memcache) and [here](https://github.com/s-bose7/memcache-client).

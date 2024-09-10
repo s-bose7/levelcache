@@ -4,6 +4,7 @@ import com.levelcache.config.CacheConfiguration;
 import com.levelcache.config.ConfigurationBuilder;
 import com.levelcache.core.LevelCache;
 import com.levelcache.exception.CacheInitializationException;
+import com.levelcache.exception.LevelOutOfBoundException;
 import com.levelcache.factory.CacheFactory;
 
 /* 
@@ -11,7 +12,7 @@ import com.levelcache.factory.CacheFactory;
 */
 public class App {
 	
-    public static void main( String[] args ) throws CacheInitializationException {
+    public static void main( String[] args ) throws CacheInitializationException, LevelOutOfBoundException {
         
     	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
 				    			.setCacheName("cpu-cache-5c-x86-64-5679")
