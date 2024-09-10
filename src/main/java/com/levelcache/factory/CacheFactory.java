@@ -1,11 +1,10 @@
-package live.levelcache.factory;
+package com.levelcache.factory;
 
-import live.levelcache.core.LevelCache;
-import live.levelcache.core.LevelCacheImpl;
-import live.levelcache.config.CacheConfiguration;
-import live.levelcache.config.DefaultConfigBuilder;
-
-import live.levelcache.exception.CacheInitializationException;
+import com.levelcache.config.CacheConfiguration;
+import com.levelcache.config.DefaultConfigBuilder;
+import com.levelcache.core.LevelCache;
+import com.levelcache.core.LevelCacheImpl;
+import com.levelcache.exception.CacheInitializationException;
 
 /**
  * A factory class for creating and managing instances of {@link LevelCache}.

@@ -18,7 +18,7 @@ Each cache level is efficiently managed through `CacheUnit`, which holds the lev
 
 Overall, the system is built for extensibility, supporting dynamic cache levels and eviction policies, and promotes loose coupling through the use of the `DefaultConfigBuilder`.
 
-![architecture](doc/levelcache.png)
+See [here](doc/levelcache.png) to get an overview of the system.
 
 # Prerequisite
 * JDK 1.8
@@ -35,7 +35,11 @@ $ mvn clean install
 $ mvn test
 ```
 
-# Example
+# Example and Usage
+
+Imagine a system where data is stored in DynamoDB, but certain data becomes highly popular during peak traffic periods. In such cases, it's beneficial to introduce Redis or Memcached between your web application and the database, and to use a LevelCache within your application to minimize unnecessary network calls.
+
+![alt_tag](doc/levelcache-usage.png)
 
 ## Cache Initialization
 ```java

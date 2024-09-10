@@ -7,15 +7,15 @@
  * Exceptions related to cache operations like reading, writing, and removing levels are thrown
  * to handle edge cases and ensure reliability.
  */
-package live.levelcache.core;
+package com.levelcache.core;
 
 import java.util.List;
 import java.util.Map;
 
-import live.levelcache.exception.CacheBulkReadingException;
-import live.levelcache.exception.CacheReadingException;
-import live.levelcache.exception.CacheWritingException;
-import live.levelcache.exception.RemoveLevelException;
+import com.levelcache.exception.CacheBulkReadingException;
+import com.levelcache.exception.CacheReadingException;
+import com.levelcache.exception.CacheWritingException;
+import com.levelcache.exception.RemoveLevelException;
 
 /**
  * This interface defines the public API for managing a multilevel cache system.

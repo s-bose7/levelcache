@@ -1,8 +1,8 @@
-package live.levelcache.service;
+package com.levelcache.service;
 
-import live.levelcache.storage.InMemoryLFUStorage;
-import live.levelcache.storage.InMemoryLRUStorage;
-import live.levelcache.storage.StorageEngine;
+import com.levelcache.storage.InMemoryLFUStorage;
+import com.levelcache.storage.InMemoryLRUStorage;
+import com.levelcache.storage.StorageEngine;
 
 
 public class CacheUnitProvider {

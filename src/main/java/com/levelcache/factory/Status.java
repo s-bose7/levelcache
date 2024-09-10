@@ -1,6 +1,6 @@
-package live.levelcache.factory;
+package com.levelcache.factory;
 
-import live.levelcache.core.LevelCache;
+import com.levelcache.core.LevelCache;
 /**
  * Enumeration of {@link LevelCache} statuses.
 */

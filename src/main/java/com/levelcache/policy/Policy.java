@@ -1,4 +1,4 @@
-package live.levelcache.policy;
+package com.levelcache.policy;
 
 public enum Policy {
   

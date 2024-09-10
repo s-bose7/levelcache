@@ -1,4 +1,4 @@
-package live.levelcache.config;
+package com.levelcache.config;
 
 /**
  * Provides a default configuration for a cache instance using a builder pattern.

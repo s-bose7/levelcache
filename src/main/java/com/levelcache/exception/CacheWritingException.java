@@ -1,6 +1,6 @@
-package live.levelcache.exception;
+package com.levelcache.exception;
 
-import live.levelcache.core.LevelCache;
+import com.levelcache.core.LevelCache;
 
 /**
  * Exception thrown by a {@link LevelCache} when it encounters an error while

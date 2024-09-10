@@ -1,10 +1,10 @@
-package live.levelcache;
+package com.levelcache;
 
-import live.levelcache.config.CacheConfiguration;
-import live.levelcache.config.ConfigurationBuilder;
-import live.levelcache.core.LevelCache;
-import live.levelcache.exception.CacheInitializationException;
-import live.levelcache.factory.CacheFactory;
+import com.levelcache.config.CacheConfiguration;
+import com.levelcache.config.ConfigurationBuilder;
+import com.levelcache.core.LevelCache;
+import com.levelcache.exception.CacheInitializationException;
+import com.levelcache.factory.CacheFactory;
 
 /* 
  * Cache initialization demo 

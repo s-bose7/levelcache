@@ -13,21 +13,22 @@
  * limitations under the License.
  */
 
-package live.levelcache.core;
+package com.levelcache.core;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import live.levelcache.config.CacheConfiguration;
-import live.levelcache.service.CacheUnit;
-import live.levelcache.service.CacheUnitProvider;
-import live.levelcache.storage.StorageEngine;
-import live.levelcache.exception.CacheBulkReadingException;
-import live.levelcache.exception.CacheBulkWritingException;
-import live.levelcache.exception.CacheReadingException;
-import live.levelcache.exception.CacheWritingException;
-import live.levelcache.exception.RemoveLevelException;
+import com.levelcache.config.CacheConfiguration;
+import com.levelcache.exception.CacheBulkReadingException;
+import com.levelcache.exception.CacheBulkWritingException;
+import com.levelcache.exception.CacheReadingException;
+import com.levelcache.exception.CacheWritingException;
+import com.levelcache.exception.RemoveLevelException;
+import com.levelcache.service.CacheUnit;
+import com.levelcache.service.CacheUnitProvider;
+import com.levelcache.storage.StorageEngine;
+
 /**
  * 
  */

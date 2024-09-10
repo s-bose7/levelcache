@@ -1,4 +1,4 @@
-package live.levelcache.config;
+package com.levelcache.config;
 
 /**
  * Builder class for creating instances of {@link CacheConfiguration}.

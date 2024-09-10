@@ -1,4 +1,4 @@
-package live.levelcache.config;
+package com.levelcache.config;
 
 /**
  * Configuration class for cache settings. This class holds configuration parameters

@@ -1,4 +1,4 @@
-package live.levelcache.exception;
+package com.levelcache.exception;
 
 public class RemoveLevelException extends Exception {
 
