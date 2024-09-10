@@ -15,6 +15,7 @@
 
 package com.levelcache.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -140,17 +141,32 @@ public class LevelCacheImpl implements LevelCache {
 	
 	@Override
 	public List<String> getAll(List<String> keys) throws CacheBulkReadingException {
-		if(indexLevel < 1) {
-			throw new CacheBulkReadingException("No levels found: "+indexLevel);
+		if (indexLevel < 1) {
+			throw new CacheBulkReadingException("No levels found: " + indexLevel);
 		}
-		return null;
+		List<String> values = new ArrayList<>(keys.size());
+		for (String key : keys) {
+			try {
+				values.add(get(key));
+			} catch (CacheReadingException e) {
+				// TODO: handle exception
+			}
+		}
+		return values;
 	}
 
-	
+
 	@Override
 	public void putAll(Map<String, String> data) throws CacheBulkWritingException {
 		if(indexLevel < 1) {
 			throw new CacheBulkWritingException("No levels found: "+indexLevel);
+		}
+		for(Map.Entry<String, String> entry : data.entrySet()) {
+			try {
+				put(entry.getKey(), entry.getValue());
+			} catch (CacheWritingException e) {
+				// TODO: handle exception
+			}
 		}
 	}
 
