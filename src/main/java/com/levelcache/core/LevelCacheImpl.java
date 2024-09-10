@@ -24,6 +24,7 @@ import com.levelcache.exception.CacheBulkReadingException;
 import com.levelcache.exception.CacheBulkWritingException;
 import com.levelcache.exception.CacheReadingException;
 import com.levelcache.exception.CacheWritingException;
+import com.levelcache.exception.LevelOutOfBoundException;
 import com.levelcache.exception.RemoveLevelException;
 import com.levelcache.service.CacheUnit;
 import com.levelcache.service.CacheUnitProvider;
@@ -51,20 +52,22 @@ public class LevelCacheImpl implements LevelCache {
 
 	
 	@Override
-	public void addLevel(int size, String policy) {
-		if(indexLevel < config.getMaxCacheLevels()) {
-			++indexLevel;
-			CacheUnit cacheUnit = CacheUnitProvider.createCacheUnit(indexLevel, size, policy);
-			byIndexLevel.put(indexLevel, cacheUnit);
-		}	
+	public void addLevel(int size, String policy) throws LevelOutOfBoundException {
+		if(indexLevel > config.getMaxCacheLevels()) {
+			throw new LevelOutOfBoundException("Level "+indexLevel+" out of bound");
+		}
+		++indexLevel;
+		CacheUnit cacheUnit = CacheUnitProvider.createCacheUnit(indexLevel, size, policy);
+		byIndexLevel.put(indexLevel, cacheUnit);
 	}
 
 	
 	@Override
 	public void removeLevel(int id) throws RemoveLevelException {
-		if (byIndexLevel.remove(id) == null) {
+		if (!byIndexLevel.containsKey(id)) {
 	        throw new RemoveLevelException("Cache Level with ID: " + id + " is not found");
 	    }
+		byIndexLevel.remove(id);
 	}
 
 	
