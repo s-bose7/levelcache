@@ -20,15 +20,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.levelcache.config.CacheConfiguration;
+import com.levelcache.service.CacheUnit;
+import com.levelcache.service.CacheUnitProvider;
+import com.levelcache.storage.StorageEngine;
+
 import com.levelcache.exception.CacheBulkReadingException;
 import com.levelcache.exception.CacheBulkWritingException;
+import com.levelcache.exception.CacheInitializationException;
 import com.levelcache.exception.CacheReadingException;
 import com.levelcache.exception.CacheWritingException;
 import com.levelcache.exception.LevelOutOfBoundException;
 import com.levelcache.exception.RemoveLevelException;
-import com.levelcache.service.CacheUnit;
-import com.levelcache.service.CacheUnitProvider;
-import com.levelcache.storage.StorageEngine;
 
 /**
  * 
@@ -43,7 +45,10 @@ public class LevelCacheImpl implements LevelCache {
 	private Map<String, Integer> byKey;
 	
 	
-	public LevelCacheImpl(CacheConfiguration config) {
+	public LevelCacheImpl(CacheConfiguration config) throws CacheInitializationException {
+		if(config.getCacheName().isBlank()) {
+			throw new CacheInitializationException("Cache Name cannot be blank");
+		}
 		this.indexLevel = 0;
 		this.config = config;
 		this.byIndexLevel = new HashMap<>();

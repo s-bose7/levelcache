@@ -82,8 +82,15 @@ public interface LevelCache {
      */
 	public void display();
 	
+	/**
+	 * Clear the cache to it's original state.
+	 * Use with caution.
+	 */
 	public void clear();
 	
+	/**
+	 * Returns the number of levels the instance has. 
+	 */
 	public int getLevelCount();
 	
 }
