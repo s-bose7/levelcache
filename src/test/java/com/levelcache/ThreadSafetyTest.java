@@ -1,8 +1,9 @@
-package com.levelcache.test;
+package com.levelcache;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -29,6 +30,11 @@ public class ThreadSafetyTest {
 				.build();
 		
 		cache = CacheFactory.createCache(config);
+	}
+	
+	@After
+	public void destroy() {
+		cache.clear();
 	}
 
 	@Test

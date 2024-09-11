@@ -1,7 +1,8 @@
-package com.levelcache.test;
+package com.levelcache;
 
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -37,8 +38,13 @@ public class LevelCacheTest {
 		cache = CacheFactory.createCache(config);
 	}
 	
+	@After
+	public void destroy() {
+		cache.clear();
+	}
+	
 	@Test
-	public void TestCacheLevelInsertionAndRemoval() throws LevelOutOfBoundException, RemoveLevelException {
+	public void testCacheLevelCreationAndRemoval() throws LevelOutOfBoundException, RemoveLevelException {
 		cache.addLevel(10, "LRU");
 		cache.addLevel(12, "LRU");
 		cache.addLevel(15, "LRU");
@@ -51,8 +57,17 @@ public class LevelCacheTest {
 	}
 	
 	@Test
-	public void TestCacheInsertionAndRetrieval() throws LevelOutOfBoundException {
+	public void testCacheClearOperation() throws LevelOutOfBoundException {
+		cache.addLevel(10, "LRU");
+		cache.addLevel(12, "LRU");
+		assertEquals(2, cache.getLevelCount());
+		
+		cache.clear();
 		assertEquals(0, cache.getLevelCount());
+	}
+	
+	@Test
+	public void testCacheInsertionAndRetrieval() throws LevelOutOfBoundException {
 		cache.addLevel(3, "LRU");
 		cache.addLevel(2, "LRU");
 		
@@ -67,8 +82,8 @@ public class LevelCacheTest {
 		assertEquals("1456", cache.get("mnop"));
 	}
 	
-	@Test 
-	public void TestCacheBulkReadsAndWrites() throws LevelOutOfBoundException {
+	@Test
+	public void testCacheBulkReadsAndWrites() throws LevelOutOfBoundException {
 		cache.addLevel(5, "LRU");
 		cache.addLevel(5, "LRU");
 		
@@ -85,6 +100,16 @@ public class LevelCacheTest {
 		assertEquals("10d3-a456-426614174000", values.get(0));
 		assertEquals("11d3-a456-426614174000", values.get(1));
 		assertEquals("12d3-a456-426614174000", values.get(2));
+	}
+	
+	@Test
+	public void testCacheLruInvalidation() {
+		
+	}
+	
+	@Test
+	public void testCacheLfuInvalidation() {
+		
 	}
 	
 }

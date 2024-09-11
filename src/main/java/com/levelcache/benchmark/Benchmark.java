@@ -1,7 +1,5 @@
 package com.levelcache.benchmark;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.levelcache.config.CacheConfiguration;
@@ -12,6 +10,24 @@ import com.levelcache.exception.LevelOutOfBoundException;
 import com.levelcache.factory.CacheFactory;
 
 public class Benchmark {
+	
+	private static final int NUM_LEVEL = 100;
+	private static final int NUM_INSERTION = 2000000;
+	private static final int MAX_CACHE_LEVEL = 1000;
+	
+	@SuppressWarnings("unused")
+	private static final byte KEY_SIZE = 10;
+	@SuppressWarnings("unused")
+	private static final byte VALUE_SIZE = 100;
+
+	
+	private static LevelCache addCacheLevels(LevelCache cache) throws LevelOutOfBoundException {
+		for(int level=1; level <= NUM_LEVEL; level++) {
+			cache.addLevel(level, "LRU"); // By default eviction policy is LRU
+		}
+		return cache;
+	}
+	
 	
 	private static void runCacheHitRatioTest(LevelCache cache) {
         // Implement the logic to measure cache hit ratio
@@ -26,18 +42,20 @@ public class Benchmark {
     }
     
     private static void runAverageInsertionTimeTest(LevelCache cache) {
-    	int insert = 1;
     	long totalInsertionTime = 0;
     	
-		while(insert <= 200000) {
-			String keyUUIDString = UUID.randomUUID().toString();
+		for(int insertion=1; insertion<=NUM_INSERTION; insertion++) {
+			String key = UUID.randomUUID().toString();
+			String val = UUID.randomUUID().toString();
+			
 			long startTime = System.nanoTime();
-			cache.put(keyUUIDString, "foobar");
-			totalInsertionTime += System.nanoTime() - startTime;
-			insert++;
+			cache.put(key, val);
+			long duration = System.nanoTime() - startTime;
+			
+			totalInsertionTime += duration;
 		}
 		
-		double avgTimeTaken = (totalInsertionTime/insert) / 1_000.0;
+		double avgTimeTaken = (totalInsertionTime/NUM_INSERTION) / 1_000.0;
 		System.out.println("AverageInsertionTime: "+avgTimeTaken+" micros;");
 	}
 
@@ -56,21 +74,20 @@ public class Benchmark {
     public static void main(String[] args) throws CacheInitializationException, LevelOutOfBoundException {
     	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
                 .setCacheName("benchmark-cache")
-                .setMaxCacheLevels(10)
+                .setMaxCacheLevels(MAX_CACHE_LEVEL)
                 .build();
     	
         LevelCache cache = CacheFactory.createCache(cacheConfiguration);
-        cache.addLevel(10, "LRU");
-    	cache.addLevel(50, "LRU");
-    	cache.addLevel(90, "LRU");
+        cache = addCacheLevels(cache);
         
         // Run benchmark tests
-        runCacheHitRatioTest(cache);
-        runCacheMissRatioTest(cache);
         runAverageInsertionTimeTest(cache);
         runAverageRetrievalTimeTest(cache);
-        runMemoryUsageTest(cache);
+        
         runEvictionCountTest(cache);
+        runCacheHitRatioTest(cache);
+        runCacheMissRatioTest(cache);
+        runMemoryUsageTest(cache);
         runConcurrencyPerformanceTest(cache);
     }
 }
