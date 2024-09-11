@@ -1,6 +1,6 @@
 # LevelCache
 
-**LevelCache** is a thread-safe, dynamic multi-level caching system designed to efficiently manage data across various cache layers. It supports the dynamic addition of cache levels, hybrid eviction policies, and concurrent read/write operations, ensuring optimized data retrieval across levels.
+**LevelCache** is a thread-safe, dynamic multi-level caching system designed to efficiently manage data across various cache layers. It supports the dynamic addition of cache levels, multiple eviction policies, and concurrent read/write operations, ensuring optimized data retrieval across levels.
 
 Multilevel caching strategies are commonly found in hardware systems (e.g., computer processors, CDNs, web servers) to balance the trade-offs between speed, memory capacity, and cost. Each level stores data at different speeds and capacities, with higher levels (closer to the processor) being faster but smaller, while lower levels are slower but larger.
 
