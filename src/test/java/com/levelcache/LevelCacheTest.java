@@ -117,12 +117,35 @@ public class LevelCacheTest {
 	
 	@Test
 	public void testCacheLruInvalidation() {
+		addCacheLevels(1, 2, "LRU");
+		
+		cache.put("120", "120");
+		cache.put("121", "121");
+		cache.put("122", "122");
+		assertEquals(null, cache.get("120"));
+		
+		cache.put("122", "130");
+		cache.put("123", "123"); 
+		assertEquals(null, cache.get("121"));
 		
 	}
 	
 	@Test
 	public void testCacheLfuInvalidation() {
+		addCacheLevels(1, 2, "LFU");
+		cache.put("a", "a");
+		cache.put("b", "b");
 		
+		assertEquals("a", cache.get("a"));
+		
+		cache.put("c", "c");
+		assertEquals(null, cache.get("b"));
+		assertEquals("c", cache.get("c"));
+		
+		cache.put("d", "d");
+		assertEquals(null, cache.get("a"));
+		assertEquals("c", cache.get("c"));
+		assertEquals("d", cache.get("d"));
 	}
 	
 }

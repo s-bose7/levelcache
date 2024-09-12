@@ -20,7 +20,7 @@ public class LruStorageEngine extends AbstractStorageEngine<LruCacheEntry> {
 
 	@Override
 	protected Map<String, LruCacheEntry> createCacheMap() {
-		return new HashMap<>();
+		return new HashMap<>(capacity);
 	}
 
 	@Override

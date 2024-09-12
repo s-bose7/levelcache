@@ -5,6 +5,10 @@ public class LfuCacheEntry extends CacheEntry {
    
 	public LfuCacheEntry(String key, String value) {
         super(key, value);
-        this.frequency = 0;
+        this.frequency = 1;
     }
+	
+	public void setValue(String value) {
+		this.value = value;
+	}
 }
