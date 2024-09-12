@@ -15,8 +15,9 @@ import java.util.Map;
 import com.levelcache.exception.CacheBulkReadingException;
 import com.levelcache.exception.CacheReadingException;
 import com.levelcache.exception.CacheWritingException;
+import com.levelcache.exception.LevelCreationException;
 import com.levelcache.exception.LevelOutOfBoundException;
-import com.levelcache.exception.RemoveLevelException;
+import com.levelcache.exception.LevelRemoveException;
 
 /**
  * This interface defines the public API for managing a multilevel cache system.
@@ -30,8 +31,9 @@ public interface LevelCache {
      * 
      * @param size the maximum number of entries that the cache level can hold
      * @param evictionPolicy the eviction policy to be used (e.g., "LRU" or "LFU")
+     * @throws LevelOutOfBoundException, LevelCreationException 
      */
-	public void addLevel(int size, String evictionPolicy) throws LevelOutOfBoundException;
+	public void addLevel(int size, String evictionPolicy) throws LevelOutOfBoundException, LevelCreationException;
 	
     /**
      * Removes a cache level identified by its unique ID.
@@ -39,7 +41,7 @@ public interface LevelCache {
      * @param id the unique identifier of the cache level to remove
      * @throws RemoveLevelException if the cache level cannot be removed (e.g., if it doesn't exist)
      */
-	public void removeLevel(int id) throws RemoveLevelException;
+	public void removeLevel(int id) throws LevelRemoveException;
 	
     /**
      * Retrieves a value from the cache by its key.

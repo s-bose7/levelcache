@@ -13,6 +13,7 @@ import com.levelcache.config.ConfigurationBuilder;
 import com.levelcache.factory.CacheFactory;
 import com.levelcache.core.LevelCache;
 import com.levelcache.exception.CacheInitializationException;
+import com.levelcache.exception.LevelCreationException;
 import com.levelcache.exception.LevelOutOfBoundException;
 
 
@@ -38,8 +39,13 @@ public class ThreadSafetyTest {
 	}
 
 	@Test
-	public void testConcurrentPutAndGet() throws InterruptedException, LevelOutOfBoundException {
-	    cache.addLevel(10, "LRU");
+	public void testConcurrentPutAndGet() throws InterruptedException {
+	    try {
+			cache.addLevel(10, "LRU");
+		} catch (LevelOutOfBoundException | LevelCreationException e) {
+			e.printStackTrace();
+		}
+	    
 	    CountDownLatch latch = new CountDownLatch(2);
 	    
 	    Thread putThread = new Thread(() -> {

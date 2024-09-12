@@ -6,6 +6,7 @@ import com.levelcache.config.CacheConfiguration;
 import com.levelcache.config.ConfigurationBuilder;
 import com.levelcache.core.LevelCache;
 import com.levelcache.exception.CacheInitializationException;
+import com.levelcache.exception.LevelCreationException;
 import com.levelcache.exception.LevelOutOfBoundException;
 import com.levelcache.factory.CacheFactory;
 
@@ -21,9 +22,13 @@ public class Benchmark {
 	private static final byte VALUE_SIZE = 100;
 
 	
-	private static LevelCache addCacheLevels(LevelCache cache) throws LevelOutOfBoundException {
-		for(int level=1; level <= NUM_LEVEL; level++) {
-			cache.addLevel(level, "LRU"); // By default eviction policy is LRU
+	private static LevelCache addCacheLevels(LevelCache cache) {
+		for(int l=1; l <= NUM_LEVEL; l++) {
+			try {
+				cache.addLevel(l, "LRU");
+			} catch (LevelOutOfBoundException | LevelCreationException e) {
+				e.printStackTrace();
+			}
 		}
 		return cache;
 	}
@@ -71,7 +76,7 @@ public class Benchmark {
         // Implement the logic to measure concurrency performance
     }
     
-    public static void main(String[] args) throws CacheInitializationException, LevelOutOfBoundException {
+    public static void main(String[] args) throws CacheInitializationException {
     	CacheConfiguration cacheConfiguration = new ConfigurationBuilder()
                 .setCacheName("benchmark-cache")
                 .setMaxCacheLevels(MAX_CACHE_LEVEL)

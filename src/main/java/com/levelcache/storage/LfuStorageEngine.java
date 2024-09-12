@@ -1,16 +1,19 @@
 package com.levelcache.storage;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 
 import com.levelcache.policy.LfuCacheEntry;
 
 
 public class LfuStorageEngine extends AbstractStorageEngine<LfuCacheEntry> {
-
+	
+	private Map<Integer, LinkedHashSet<Integer>> freqToKeys;
 	
 	public LfuStorageEngine(int capacity) {
 		super(capacity);
+		this.freqToKeys = new HashMap<>();
 	}
 	
 	@Override
@@ -38,6 +41,7 @@ public class LfuStorageEngine extends AbstractStorageEngine<LfuCacheEntry> {
 		if (!cacheMap.containsKey(key)) {
 			return null;
 		}
+		
 		return cacheMap.get(key).value;
 	}
 }

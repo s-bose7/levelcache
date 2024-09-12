@@ -15,8 +15,9 @@ import com.levelcache.config.ConfigurationBuilder;
 import com.levelcache.factory.CacheFactory;
 import com.levelcache.core.LevelCache;
 import com.levelcache.exception.CacheInitializationException;
+import com.levelcache.exception.LevelCreationException;
 import com.levelcache.exception.LevelOutOfBoundException;
-import com.levelcache.exception.RemoveLevelException;
+import com.levelcache.exception.LevelRemoveException;
 
 
 /**
@@ -43,33 +44,46 @@ public class LevelCacheTest {
 		cache.clear();
 	}
 	
+	
+	private void addCacheLevels(int nums, int size, String policy) {
+		for(int i=1; i<=nums; i++) {
+			try {
+				cache.addLevel(size, policy);
+			} catch (LevelOutOfBoundException e) {
+				e.printStackTrace();
+			} catch (LevelCreationException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	@Test
-	public void testCacheLevelCreationAndRemoval() throws LevelOutOfBoundException, RemoveLevelException {
-		cache.addLevel(10, "LRU");
-		cache.addLevel(12, "LRU");
-		cache.addLevel(15, "LRU");
+	public void testCacheLevelCreationAndRemoval() {
+		addCacheLevels(3, 5, "LRU");
 		assertEquals(3, cache.getLevelCount());
 		
-		cache.removeLevel(1);
-		cache.removeLevel(2);
-		cache.removeLevel(3);
+		try {
+			cache.removeLevel(1);
+			cache.removeLevel(2);
+			cache.removeLevel(3);
+		} catch (LevelRemoveException e) {
+			e.printStackTrace();
+		}
+		
 		assertEquals(0, cache.getLevelCount());
 	}
 	
 	@Test
-	public void testCacheClearOperation() throws LevelOutOfBoundException {
-		cache.addLevel(10, "LRU");
-		cache.addLevel(12, "LRU");
+	public void testCacheClearOperation() {
+		addCacheLevels(2, 1, "LRU");
 		assertEquals(2, cache.getLevelCount());
-		
 		cache.clear();
 		assertEquals(0, cache.getLevelCount());
 	}
 	
 	@Test
-	public void testCacheInsertionAndRetrieval() throws LevelOutOfBoundException {
-		cache.addLevel(3, "LRU");
-		cache.addLevel(2, "LRU");
+	public void testCacheInsertionAndRetrieval() {
+		addCacheLevels(2, 3, "LRU");
 		
 		cache.put("abcd", "1234");
 		cache.put("efgh", "5678");
@@ -84,8 +98,7 @@ public class LevelCacheTest {
 	
 	@Test
 	public void testCacheBulkReadsAndWrites() throws LevelOutOfBoundException {
-		cache.addLevel(5, "LRU");
-		cache.addLevel(5, "LRU");
+		addCacheLevels(2, 5, "LRU");
 		
 		Map<String, String> dataMap = new HashMap<>();
 		dataMap.put("103e4567", "10d3-a456-426614174000");
