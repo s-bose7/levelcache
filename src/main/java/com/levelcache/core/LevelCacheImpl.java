@@ -67,10 +67,10 @@ public class LevelCacheImpl implements LevelCache {
 			if (size < 1) {
 				throw new LevelCreationException("Invalid size: " + size);
 			}
+			++indexLevel;
 			if (indexLevel > config.getMaxCacheLevels()) {
 				throw new LevelOutOfBoundException("Level " + indexLevel + " out of bound");
 			}
-			++indexLevel;
 			CacheUnit cacheUnit = CacheUnitProvider.createCacheUnit(indexLevel, size, policy);
 			byIndexLevel.put(indexLevel, cacheUnit);
 		} finally {
