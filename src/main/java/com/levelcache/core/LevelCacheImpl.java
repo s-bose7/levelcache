@@ -15,6 +15,7 @@
 
 package com.levelcache.core;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,8 +64,8 @@ public class LevelCacheImpl implements LevelCache {
 	public void addLevel(int size, String policy) throws LevelOutOfBoundException, LevelCreationException {
 		rwLock.writeLock().lock();
 		try {
-			if(size < 1) {
-				throw new LevelCreationException("Invalid size: "+size);
+			if (size < 1) {
+				throw new LevelCreationException("Invalid size: " + size);
 			}
 			if (indexLevel > config.getMaxCacheLevels()) {
 				throw new LevelOutOfBoundException("Level " + indexLevel + " out of bound");
@@ -115,37 +116,40 @@ public class LevelCacheImpl implements LevelCache {
 			if (indexLevel < 1) {
 				throw new CacheWritingException("No levels found: " + indexLevel);
 			}
-
-			// Insert data into L1 (cache level 1)
-			CacheUnit targetCacheUnit = byIndexLevel.get(1);
-			targetCacheUnit.getStorageEngine().createPair(key, value);
-
-			// Check if L1 has evicted any item
-			Map.Entry<String, String> evictedKey = targetCacheUnit.getStorageEngine().getEvictedKeyIfAny();
-			// Cascade the evicted key down to the lower levels, starting from L2
-			int currentLevel = 2;
-			while (evictedKey != null && currentLevel <= indexLevel) {
-				CacheUnit lowerCacheUnit = byIndexLevel.get(currentLevel);
-				lowerCacheUnit.getStorageEngine().createPair(evictedKey.getKey(), evictedKey.getValue());
-				// Update the new level of the evictedKey from L1 (or lower)
-				byKey.put(evictedKey.getKey(), currentLevel);
-				// Check if L2 (or lower) evicts another key
-				evictedKey = lowerCacheUnit.getStorageEngine().getEvictedKeyIfAny();
-				currentLevel++;
-			}
-
-			// If the evicted key reaches beyond the last cache level
-			if (evictedKey != null) {
-				// Cache Miss: The key is no longer in the cache system
-				byKey.remove(evictedKey.getKey());
-			}
-
-			// Update the key map to indicate the inserted key is in L1
-			byKey.put(key, 1);
+			insertAndCascade(key, value);
 
 		} finally {
 			rwLock.writeLock().unlock();
 		}
+	}
+
+	private void insertAndCascade(String key, String value) {
+		// Insert data into L1 (cache level 1)
+		CacheUnit targetCacheUnit = byIndexLevel.get(1);
+		targetCacheUnit.getStorageEngine().createPair(key, value);
+
+		// Check if L1 has evicted any item
+		Map.Entry<String, String> evictedKey = targetCacheUnit.getStorageEngine().getEvictedKeyIfAny();
+		// Cascade the evicted key down to the lower levels, starting from L2
+		int currentLevel = 2;
+		while (evictedKey != null && currentLevel <= indexLevel) {
+			CacheUnit lowerCacheUnit = byIndexLevel.get(currentLevel);
+			lowerCacheUnit.getStorageEngine().createPair(evictedKey.getKey(), evictedKey.getValue());
+			// Update the new level of the evictedKey from L1 (or lower)
+			byKey.put(evictedKey.getKey(), currentLevel);
+			// Check if L2 (or lower) evicts another key
+			evictedKey = lowerCacheUnit.getStorageEngine().getEvictedKeyIfAny();
+			currentLevel++;
+		}
+
+		// If the evicted key reaches beyond the last cache level
+		if (evictedKey != null) {
+			// Cache Miss: The key is no longer in the cache system
+			byKey.remove(evictedKey.getKey());
+		}
+
+		// Update the key map to indicate the inserted key is in L1
+		byKey.put(key, 1);
 	}
 
 	@Override
@@ -168,9 +172,17 @@ public class LevelCacheImpl implements LevelCache {
 			if (indexLevel < 1) {
 				throw new CacheBulkReadingException("No levels found: " + indexLevel);
 			}
-			// Implemetation here
-
-			return null;
+			List<String> values = new ArrayList<>();
+			for (String key : keys) {
+				if (!byKey.containsKey(key)) {
+					values.add("");
+					continue;
+				} 
+				int currentLevel = byKey.get(key);
+				String value = byIndexLevel.get(currentLevel).getStorageEngine().findByKey(key);	
+				values.add(value);
+			}
+			return values;
 
 		} finally {
 			rwLock.readLock().unlock();
@@ -184,7 +196,9 @@ public class LevelCacheImpl implements LevelCache {
 			if (indexLevel < 1) {
 				throw new CacheBulkWritingException("No levels found: " + indexLevel);
 			}
-			// Implemetation here
+			for (Map.Entry<String, String> entry : data.entrySet()) {
+				insertAndCascade(entry.getKey(), entry.getValue());
+			}
 
 		} finally {
 			rwLock.writeLock().unlock();
@@ -196,8 +210,9 @@ public class LevelCacheImpl implements LevelCache {
 		rwLock.writeLock().lock();
 		try {
 			indexLevel = 0;
-			byIndexLevel.clear();
 			byKey.clear();
+			byIndexLevel.clear();
+
 		} finally {
 			rwLock.writeLock().unlock();
 		}
