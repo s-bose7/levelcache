@@ -18,7 +18,8 @@ Each cache level is efficiently managed through `CacheUnit`, which holds the lev
 
 Overall, the system is built for extensibility, supporting dynamic cache levels and eviction policies, and promotes loose coupling through the use of the `DefaultConfigBuilder`.
 
-See [here](doc/levelcache.png) to get an overview of the system.
+## System Overview
+![alt_text](doc/levelcache.png)
 
 # Prerequisite
 * JDK 1.8
