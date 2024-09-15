@@ -24,7 +24,7 @@ Overall, the system is built for extensibility, supporting dynamic cache levels 
 # Prerequisite
 * JDK 1.8
 * Maven
-* Junit 5
+* Junit 4
 
 # Setup
 ```bash
